@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dose Calc Pro | PK/PD Taeheon Kim, PhD</title>
+    <title>Dose Calc Pro | FDA Guidance Standard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -17,10 +17,10 @@
     <div class="max-w-4xl mx-auto">
         <header class="mb-8 text-center">
             <div class="inline-block p-3 bg-indigo-600 rounded-2xl mb-4 text-white shadow-lg shadow-indigo-200">
-                <i data-lucide="flask-conical" class="w-8 h-8"></i>
+                <i data-lucide="microscope" class="w-8 h-8"></i>
             </div>
-            <h1 class="text-3xl font-bold tracking-tight">Dose Calc Pro <span class="text-indigo-600 text-lg font-light italic">Advanced</span></h1>
-            <p class="text-slate-500 mt-2">전문가용 종간 용량 변환 및 단위 계산기</p>
+            <h1 class="text-3xl font-bold tracking-tight">Dose Calc Pro <span class="text-indigo-600 text-lg font-light italic">FDA Standard</span></h1>
+            <p class="text-slate-500 mt-2 text-sm">제제기획팀 업무효율화 위한 종간 용량 변환(HED/AED) 계산기(FDA guidance 참고)</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -29,7 +29,7 @@
                 
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
                     <label class="block text-sm font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                        <i data-lucide="arrow-right-left" class="w-4 h-4 text-indigo-500"></i> 계산 모드 선택
+                        <i data-lucide="arrow-right-left" class="w-4 h-4 text-indigo-500"></i> 계산 방향 설정
                     </label>
                     <div class="grid grid-cols-2 gap-4">
                         <button id="modeHED" onclick="setMode('HED')" class="py-3 px-4 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-700 font-bold transition-all">Animal → Human (HED)</button>
@@ -40,43 +40,51 @@
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-4">
                         <label class="block text-sm font-semibold text-slate-900 flex items-center gap-2">
-                            <i data-lucide="paw-print" class="w-4 h-4 text-indigo-500"></i> 동물 종 (Animal)
+                            <i data-lucide="paw-print" class="w-4 h-4 text-indigo-500"></i> 동물 종 선택 (FDA Guideline)
                         </label>
-                        <select id="animalType" onchange="calculate()" class="w-full p-3 bg-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="3" data-weight="0.02">Mouse (Km 3, 20g)</option>
-                            <option value="6" data-weight="0.15">Rat (Km 6, 150g)</option>
-                            <option value="12" data-weight="0.4">Hamster/Monkey (Km 12)</option>
-                            <option value="20" data-weight="10">Dog (Km 20, 10kg)</option>
-                            <option value="12" data-weight="3">Monkey (Km 12, 3kg)</option>
+                        <select id="animalType" onchange="updateAnimalInfo()" class="w-full p-3 bg-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                            <optgroup label="Rodents">
+                                <option value="3" data-weight="0.02">Mouse (Km 3, 20g)</option>
+                                <option value="5" data-weight="0.05">Hamster (Km 5, 50g)</option>
+                                <option value="6" data-weight="0.15">Rat (Km 6, 150g)</option>
+                                <option value="7" data-weight="0.4">Ferret (Km 7, 400g)</option>
+                            </optgroup>
+                            <optgroup label="Non-Rodents">
+                                <option value="12" data-weight="1.8">Rabbit (Km 12, 1.8kg)</option>
+                                <option value="12" data-weight="3">Monkey (Km 12, 3kg)</option>
+                                <option value="15" data-weight="5">Mini-pig (Km 15, 5kg)</option>
+                                <option value="20" data-weight="10">Dog (Km 20, 10kg)</option>
+                                <option value="35" data-weight="40">Swine (Km 35, 40kg)</option>
+                            </optgroup>
                         </select>
                         <div class="flex items-center gap-2">
-                            <input type="number" id="animalWeight" oninput="calculate()" value="0.02" step="0.01" class="w-full p-3 bg-slate-100 rounded-xl outline-none" placeholder="체중">
-                            <span class="text-sm text-slate-500 font-medium font-mono">kg</span>
+                            <input type="number" id="animalWeight" oninput="calculate()" value="0.02" step="0.01" class="w-full p-3 bg-slate-100 rounded-xl outline-none font-mono" placeholder="체중">
+                            <span class="text-sm text-slate-500 font-medium">kg</span>
                         </div>
                     </div>
 
-                    <div class="space-y-4 border-t md:border-t-0 md:border-l border-slate-100 md:pl-6 pt-4 md:pt-0">
-                        <label class="block text-sm font-semibold text-slate-900 flex items-center gap-2">
-                            <i data-lucide="user" class="w-4 h-4 text-indigo-500"></i> 사람 (Human)
+                    <div class="space-y-4 border-t md:border-t-0 md:border-l border-slate-100 md:pl-6 pt-4 md:pt-0 text-right md:text-left">
+                        <label class="block text-sm font-semibold text-slate-900 flex items-center gap-2 justify-end md:justify-start">
+                            <i data-lucide="user" class="w-4 h-4 text-indigo-500"></i> 사람 (Human Standard)
                         </label>
-                        <div class="p-3 bg-slate-50 text-slate-500 rounded-xl text-sm italic">Human (Km 37)</div>
+                        <div class="p-3 bg-slate-50 text-slate-500 rounded-xl text-sm italic">Adult Human (Km 37)</div>
                         <div class="flex items-center gap-2">
-                            <input type="number" id="humanWeight" oninput="calculate()" value="60" class="w-full p-3 bg-slate-100 rounded-xl outline-none" placeholder="체중">
-                            <span class="text-sm text-slate-500 font-medium font-mono">kg</span>
+                            <input type="number" id="humanWeight" oninput="calculate()" value="60" class="w-full p-3 bg-slate-100 rounded-xl outline-none font-mono text-right md:text-left" placeholder="체중">
+                            <span class="text-sm text-slate-500 font-medium">kg</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
                     <label class="block text-sm font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                        <i data-lucide="syringe" class="w-4 h-4 text-indigo-500"></i> 투여 정보 입력
+                        <i data-lucide="syringe" class="w-4 h-4 text-indigo-500"></i> Dose 입력
                     </label>
                     <div class="flex flex-col md:flex-row gap-4 items-end">
                         <div class="flex-1 w-full">
-                            <span class="text-xs text-slate-400 mb-1 block font-medium" id="inputDoseLabel">동물 투여 용량</span>
-                            <input type="number" id="doseInput" oninput="calculate()" value="10" class="w-full p-3 bg-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-lg">
+                            <span class="text-[10px] text-slate-400 mb-1 block font-bold uppercase" id="inputDoseLabel">동물 투여 용량</span>
+                            <input type="number" id="doseInput" oninput="calculate()" value="10" class="w-full p-3 bg-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-xl">
                         </div>
-                        <select id="unitInput" onchange="calculate()" class="p-3 bg-slate-100 rounded-xl outline-none min-w-[120px] font-semibold">
+                        <select id="unitInput" onchange="calculate()" class="p-3 bg-slate-200 rounded-xl outline-none min-w-[120px] font-bold">
                             <option value="mgkg">mg/kg</option>
                             <option value="mghead">mg/head</option>
                         </select>
@@ -85,59 +93,62 @@
             </div>
 
             <div class="space-y-4">
-                <div class="bg-indigo-600 rounded-3xl p-8 text-white shadow-xl shadow-indigo-200">
-                    <h3 class="text-indigo-100 text-sm font-medium mb-6 flex items-center gap-2 border-b border-indigo-500/50 pb-2">
-                        <i data-lucide="clipboard-check" class="w-4 h-4"></i> 계산 결과
+                <div class="bg-indigo-600 rounded-[2rem] p-8 text-white shadow-2xl shadow-indigo-200">
+                    <h3 class="text-indigo-100 text-xs font-semibold mb-8 flex items-center gap-2 tracking-widest uppercase">
+                        <i data-lucide="activity" class="w-4 h-4"></i> Result Dashboard
                     </h3>
                     
-                    <div class="space-y-8">
+                    <div class="space-y-10">
                         <div>
-                            <p class="text-indigo-200 text-[10px] uppercase tracking-wider mb-1 font-semibold">변환된 용량 (Concentration)</p>
+                            <p class="text-indigo-200 text-[10px] uppercase font-bold mb-2">Dose Concentration</p>
                             <div class="flex items-baseline gap-2">
-                                <span class="text-4xl font-bold font-mono" id="resConc">0.81</span>
-                                <span class="text-lg opacity-80 font-medium italic">mg/kg</span>
+                                <span class="text-5xl font-bold font-mono tracking-tighter" id="resConc">0.811</span>
+                                <span class="text-lg opacity-70 italic font-medium">mg/kg</span>
                             </div>
                         </div>
 
-                        <div>
-                            <p class="text-indigo-200 text-[10px] uppercase tracking-wider mb-1 font-semibold">총 투여량 (Total Dose)</p>
+                        <div class="pt-8 border-t border-indigo-500/40">
+                            <p class="text-indigo-200 text-[10px] uppercase font-bold mb-2">Total Dose (per head)</p>
                             <div class="flex items-baseline gap-2">
-                                <span class="text-4xl font-bold font-mono" id="resTotal">48.6</span>
-                                <span class="text-lg opacity-80 font-medium italic">mg/head</span>
+                                <span class="text-5xl font-bold font-mono tracking-tighter" id="resTotal">48.65</span>
+                                <span class="text-lg opacity-70 italic font-medium">mg</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
-                    <div class="flex justify-between text-[11px] text-slate-400 mb-2">
-                        <span>Animal Km</span>
-                        <span id="dispAKm" class="font-bold text-slate-600">3</span>
-                    </div>
-                    <div class="flex justify-between text-[11px] text-slate-400 mb-2">
-                        <span>Human Km</span>
-                        <span class="font-bold text-slate-600">37</span>
-                    </div>
-                    <div class="flex justify-between text-[11px] text-slate-400 border-t pt-2 mt-2">
-                        <span>Ratio (Km Factor)</span>
-                        <span id="dispRatio" class="font-bold text-indigo-600">0.081</span>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <h4 class="text-[10px] font-bold text-slate-400 uppercase mb-4 tracking-wider">Conversion Detail</h4>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500">Animal $K_m$</span>
+                            <span id="dispAKm" class="font-mono font-bold bg-slate-100 px-2 py-1 rounded text-slate-700">3</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500">Human $K_m$</span>
+                            <span class="font-mono font-bold bg-slate-100 px-2 py-1 rounded text-slate-700">37</span>
+                        </div>
+                        <div class="pt-3 border-t border-slate-100 flex justify-between items-center">
+                            <span class="text-xs font-semibold text-indigo-600 uppercase">Km Ratio</span>
+                            <span id="dispRatio" class="text-lg font-bold font-mono text-indigo-700">0.0811</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <footer class="mt-16 pt-8 border-t border-slate-200 text-center pb-12">
-            <div class="flex flex-col items-center gap-3">
-                <div class="flex items-center gap-2 text-slate-800 font-bold tracking-tight text-xl">
-                    <i data-lucide="building-2" class="w-6 h-6 text-indigo-600"></i>
-                    Daewoong Pharmaceuticals
+        <footer class="mt-16 pt-10 border-t border-slate-200 pb-16">
+            <div class="flex flex-col items-center">
+                <div class="flex items-center gap-2 text-slate-800 font-black text-2xl tracking-tight mb-2">
+                    <i data-lucide="building-2" class="w-7 h-7 text-indigo-600"></i>
+                    DAEWOONG <span class="font-light">Pharmaceuticals</span>
                 </div>
-                <div class="flex items-center gap-3 text-slate-500">
-                    <span class="bg-indigo-600 text-white px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest">Developer</span>
-                    <span class="text-md font-semibold text-slate-700">PK/PD Taeheon Kim, PhD</span>
+                <div class="bg-indigo-50 px-4 py-1.5 rounded-full flex items-center gap-3 border border-indigo-100">
+                    <span class="text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded-md font-black italic">PK/PD</span>
+                    <span class="text-sm font-bold text-indigo-900 tracking-tight">Taeheon Kim, PhD</span>
                 </div>
-                <p class="text-[10px] text-slate-400 mt-6 tracking-widest uppercase font-medium">
-                    &copy; 2026 Professional Research Tool. All rights reserved.
+                <p class="text-[9px] text-slate-400 mt-8 tracking-[0.3em] uppercase font-bold">
+                    Referenced from FDA Guidance for Industry (2005)
                 </p>
             </div>
         </footer>
@@ -156,21 +167,23 @@
             const inputLabel = document.getElementById('inputDoseLabel');
 
             if(mode === 'HED') {
-                hBtn.className = "py-3 px-4 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-700 font-bold transition-all";
-                aBtn.className = "py-3 px-4 rounded-xl border-2 border-slate-100 bg-slate-50 text-slate-500 font-medium transition-all";
+                hBtn.className = "py-3 px-4 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-700 font-bold transition-all shadow-sm";
+                aBtn.className = "py-3 px-4 rounded-xl border-2 border-transparent bg-slate-50 text-slate-400 font-medium transition-all hover:bg-slate-100";
                 inputLabel.innerText = "동물(Animal) 투여 용량";
             } else {
-                aBtn.className = "py-3 px-4 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-700 font-bold transition-all";
-                hBtn.className = "py-3 px-4 rounded-xl border-2 border-slate-100 bg-slate-50 text-slate-500 font-medium transition-all";
+                aBtn.className = "py-3 px-4 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-700 font-bold transition-all shadow-sm";
+                hBtn.className = "py-3 px-4 rounded-xl border-2 border-transparent bg-slate-50 text-slate-400 font-medium transition-all hover:bg-slate-100";
                 inputLabel.innerText = "사람(Human) 투여 용량";
             }
             calculate();
         }
 
-        document.getElementById('animalType').addEventListener('change', function() {
-            const selected = this.options[this.selectedIndex];
-            document.getElementById('animalWeight').value = selected.getAttribute('data-weight');
-        });
+        function updateAnimalInfo() {
+            const select = document.getElementById('animalType');
+            const selectedOption = select.options[select.selectedIndex];
+            document.getElementById('animalWeight').value = selectedOption.getAttribute('data-weight');
+            calculate();
+        }
 
         function calculate() {
             const animalKm = parseFloat(document.getElementById('animalType').value);
@@ -191,20 +204,23 @@
             }
 
             if (currentMode === 'HED') {
-                resultMgKg = mgKgBase * (animalKm / HUMAN_KM);
+                const ratio = animalKm / HUMAN_KM;
+                resultMgKg = mgKgBase * ratio;
                 resultTotal = resultMgKg * humanW;
-                document.getElementById('dispRatio').innerText = (animalKm / HUMAN_KM).toFixed(4);
+                document.getElementById('dispRatio').innerText = ratio.toFixed(4);
             } else {
-                resultMgKg = mgKgBase * (HUMAN_KM / animalKm);
+                const ratio = HUMAN_KM / animalKm;
+                resultMgKg = mgKgBase * ratio;
                 resultTotal = resultMgKg * animalW;
-                document.getElementById('dispRatio').innerText = (HUMAN_KM / animalKm).toFixed(4);
+                document.getElementById('dispRatio').innerText = ratio.toFixed(4);
             }
 
-            document.getElementById('resConc').innerText = resultMgKg.toFixed(3);
-            document.getElementById('resTotal').innerText = resultTotal.toLocaleString(undefined, {maximumFractionDigits: 3});
+            document.getElementById('resConc').innerText = resultMgKg.toLocaleString(undefined, {minimumFractionDigits: 3, maximumFractionDigits: 3});
+            document.getElementById('resTotal').innerText = resultTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('dispAKm').innerText = animalKm;
         }
 
+        // 초기화
         calculate();
     </script>
 </body>
