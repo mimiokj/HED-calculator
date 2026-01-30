@@ -8,84 +8,114 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
-        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .chart-container { position: relative; height: 300px; width: 100%; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .chart-container { position: relative; height: 320px; width: 100%; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        /* Chart.js 툴팁 폰트 크기 조정 */
+        .chartjs-tooltip { font-size: 12px; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen p-4 md:p-8">
+<body class="text-slate-900 min-h-screen p-4 md:p-8">
 
     <div class="max-w-6xl mx-auto">
-        <header class="mb-10 text-center">
-            <div class="inline-block p-3 bg-indigo-600 rounded-2xl mb-4 text-white shadow-xl shadow-indigo-200">
-                <i data-lucide="line-chart" class="w-8 h-8"></i>
+        <header class="mb-12 text-center">
+            <div class="inline-block p-4 bg-indigo-600 rounded-3xl mb-4 text-white shadow-2xl shadow-indigo-200">
+                <i data-lucide="line-chart" class="w-10 h-10"></i>
             </div>
-            <h1 class="text-4xl font-black tracking-tighter italic text-slate-800">Dose Calc <span class="text-indigo-600">Visual Pro</span></h1>
-            <p class="text-slate-400 mt-2 font-medium tracking-widest uppercase text-xs">Advanced Inter-species Scaling Tool</p>
+            <h1 class="text-4xl font-black tracking-tighter text-slate-800 italic uppercase">DOSE CALC <span class="text-indigo-600">VISUAL PRO</span></h1>
+            <p class="text-slate-400 mt-2 font-bold tracking-[0.2em] uppercase text-[10px]">Comparative Scaling Dashboard: BSA & Km Factors</p>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
             
             <div class="lg:col-span-5 space-y-6">
-                <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 h-full flex flex-col">
+                <div class="bg-white p-8 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2 uppercase tracking-tighter">
-                            <i data-lucide="scatter-chart" class="w-4 h-4 text-indigo-500"></i> Body Weight vs Km Factor
-                        </h3>
-                        <span class="text-[10px] bg-slate-100 px-2 py-1 rounded-full text-slate-400 font-mono italic">Hyperbolic Trend</span>
+                        <div>
+                            <h3 class="text-sm font-black text-slate-800 uppercase tracking-tight">Body Surface Area (BSA)</h3>
+                            <p class="text-[10px] text-slate-400 font-medium italic font-mono">Formula: BSA (m²) ≈ 0.1 × W^0.67</p>
+                        </div>
+                        <i data-lucide="maximize" class="w-5 h-5 text-indigo-500"></i>
+                    </div>
+                    
+                    <div class="chart-container flex-grow">
+                        <canvas id="bsaChart"></canvas>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-indigo-50 rounded-[2rem] border border-indigo-100/50">
+                        <p class="text-[11px] text-indigo-700 leading-relaxed italic">
+                            *체중에 따른 <b>체표면적(BSA)</b>의 증가 추세를 보여주며, 대사율은 BSA에 비례합니다.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-sm font-black text-slate-800 uppercase tracking-tight">Km Factor Relationship</h3>
+                            <p class="text-[10px] text-slate-400 font-medium italic font-mono">Formula: Km ≈ W / BSA</p>
+                        </div>
+                        <i data-lucide="minimize" class="w-5 h-5 text-emerald-500"></i>
                     </div>
                     
                     <div class="chart-container flex-grow">
                         <canvas id="kmChart"></canvas>
                     </div>
                     
-                    <div class="mt-4 p-4 bg-indigo-50 rounded-2xl border border-indigo-100/50">
-                        <p class="text-[11px] text-indigo-600 leading-relaxed italic">
-                            *하이라이트된 포인트는 현재 선택된 종의 표준 Km 값을 나타냅니다. 
-                            그래프는 체중 증가에 따른 BSA 계수($K_m$)의 비선형적 증가 추세를 보여줍니다.
+                    <div class="mt-6 p-4 bg-emerald-50 rounded-[2rem] border border-emerald-100/50">
+                        <p class="text-[11px] text-emerald-700 leading-relaxed italic">
+                            *체중 증가에 따른 <b>Km 값</b>의 변화를 나타냅니다. 
+                            종간 용량 변환의 핵심 계수입니다.
                         </p>
                     </div>
                 </div>
             </div>
 
             <div class="lg:col-span-7 space-y-6">
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                        <label class="block text-[10px] font-black text-indigo-500 mb-4 uppercase tracking-widest">Direction</label>
-                        <div class="flex p-1 bg-slate-100 rounded-2xl">
-                            <button id="modeHED" onclick="setMode('HED')" class="flex-1 py-2 px-4 rounded-xl text-xs font-bold transition-all bg-white shadow-sm text-indigo-600">A → H</button>
-                            <button id="modeAED" onclick="setMode('AED')" class="flex-1 py-2 px-4 rounded-xl text-xs font-bold transition-all text-slate-400">H → A</button>
+                    <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+                        <label class="block text-[10px] font-black text-indigo-500 mb-3 uppercase tracking-widest">Calculation Direction</label>
+                        <div class="flex p-1 bg-slate-50 rounded-2xl border border-slate-100">
+                            <button id="modeHED" onclick="setMode('HED')" class="flex-1 py-3 rounded-xl text-xs font-black transition-all bg-white shadow-sm text-indigo-600 border border-slate-100">ANIMAL → HUMAN</button>
+                            <button id="modeAED" onclick="setMode('AED')" class="flex-1 py-3 rounded-xl text-xs font-black transition-all text-slate-400">HUMAN → ANIMAL</button>
                         </div>
                     </div>
                     
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                        <label class="block text-[10px] font-black text-indigo-500 mb-4 uppercase tracking-widest">Species Reference</label>
-                        <select id="animalType" onchange="updateView()" class="w-full p-2 bg-transparent border-b-2 border-slate-200 outline-none focus:border-indigo-500 font-bold text-sm transition-colors">
-                            <option value="3" data-name="Mouse">Mouse (Km 3)</option>
-                            <option value="5" data-name="Hamster">Hamster (Km 5)</option>
-                            <option value="8" data-name="Guinea pig">Guinea pig (Km 8)</option>
-                            <option value="6" data-name="Rat">Rat (Km 6)</option>
-                            <option value="12" data-name="Rabbit">Rabbit (Km 12)</option>
-                            <option value="12" data-name="Monkey">Monkey (Km 12)</option>
-                            <option value="20" data-name="Dog">Dog (Km 20)</option>
-                            <option value="37" data-name="Human">Human (Km 37)</option>
+                    <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+                        <label class="block text-[10px] font-black text-indigo-500 mb-3 uppercase tracking-widest">Reference Species (Km)</label>
+                        <select id="animalType" onchange="updateView()" class="w-full p-2.5 bg-transparent border-b-2 border-slate-100 outline-none focus:border-indigo-500 font-bold text-sm transition-all appearance-none cursor-pointer">
+                            <optgroup label="Rodents">
+                                <option value="3" data-name="Mouse" data-weight="0.02">Mouse (Km 3)</option>
+                                <option value="5" data-name="Hamster" data-weight="0.05">Hamster (Km 5)</option>
+                                <option value="8" data-name="Guinea pig" data-weight="0.5">Guinea pig (Km 8)</option>
+                                <option value="6" data-name="Rat" data-weight="0.15">Rat (Km 6)</option>
+                            </optgroup>
+                            <optgroup label="Non-Rodents">
+                                <option value="12" data-name="Rabbit" data-weight="1.8">Rabbit (Km 12)</option>
+                                <option value="12" data-name="Monkey" data-weight="3">Monkey (Km 12)</option>
+                                <option value="15" data-name="Mini-pig" data-weight="10">Mini-pig (Km 15)</option>
+                                <option value="20" data-name="Dog" data-weight="10">Dog (Km 20)</option>
+                                <option value="35" data-name="Swine" data-weight="40">Swine (Km 35)</option>
+                            </optgroup>
+                            <option value="37" data-name="Human" data-weight="60">Human (Km 37)</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <div class="space-y-6">
-                            <div class="group">
-                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest group-focus-within:text-indigo-500 transition-colors">Animal Weight (kg)</label>
-                                <input type="number" id="animalWeight" oninput="calculate()" value="0.02" step="0.001" class="w-full py-2 text-2xl font-mono border-b border-slate-100 outline-none focus:border-indigo-500 transition-all bg-transparent">
+                <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-8">
+                            <div>
+                                <label class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2" id="weightLabel">Animal Weight (kg)</label>
+                                <input type="number" id="animalWeight" oninput="calculate()" value="0.02" step="0.001" class="w-full py-2 text-3xl font-black border-b-2 border-slate-50 outline-none focus:border-indigo-500 transition-all bg-transparent font-mono">
                             </div>
-                            <div class="group">
-                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest group-focus-within:text-indigo-500 transition-colors">Dose Value</label>
+                            <div>
+                                <label class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2">Input Dose Amount</label>
                                 <div class="flex items-center gap-4">
-                                    <input type="number" id="doseInput" oninput="calculate()" value="10" class="w-full py-2 text-2xl font-mono border-b border-slate-100 outline-none focus:border-indigo-500 transition-all bg-transparent font-black">
-                                    <select id="unitInput" onchange="calculate()" class="bg-slate-900 text-white text-[10px] font-black px-3 py-2 rounded-lg">
+                                    <input type="number" id="doseInput" oninput="calculate()" value="10" class="w-full py-2 text-3xl font-black border-b-2 border-slate-50 outline-none focus:border-indigo-500 transition-all bg-transparent font-mono text-indigo-600">
+                                    <select id="unitInput" onchange="calculate()" class="bg-slate-900 text-white text-[10px] font-black px-4 py-3 rounded-2xl">
                                         <option value="mgkg">MG/KG</option>
                                         <option value="mghead">MG/HEAD</option>
                                     </select>
@@ -93,40 +123,40 @@
                             </div>
                         </div>
                         
-                        <div class="bg-indigo-600 rounded-[2rem] p-6 text-white flex flex-col justify-between shadow-xl shadow-indigo-100">
+                        <div class="bg-indigo-600 rounded-[2.5rem] p-8 text-white flex flex-col justify-between shadow-2xl shadow-indigo-200">
                             <div>
-                                <p class="text-[10px] font-bold opacity-60 uppercase mb-1" id="resLabel">HED Result</p>
-                                <div class="flex items-baseline gap-1">
-                                    <span id="resConc" class="text-4xl font-black font-mono tracking-tighter text-white">0.811</span>
-                                    <span class="text-xs font-medium opacity-60">mg/kg</span>
+                                <p class="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-1" id="resTitle">Human Equivalent Dose</p>
+                                <div class="flex items-baseline gap-2">
+                                    <span id="resConc" class="text-5xl font-black font-mono tracking-tighter tracking-tight">0.811</span>
+                                    <span class="text-sm font-bold opacity-70 italic">mg/kg</span>
                                 </div>
                             </div>
-                            <div class="mt-6 pt-4 border-t border-white/10">
-                                <p class="text-[10px] font-bold opacity-60 uppercase mb-1 text-indigo-200">Total Indiv. Dose</p>
-                                <div class="flex items-baseline gap-1">
-                                    <span id="resTotal" class="text-3xl font-bold font-mono text-white">48.65</span>
-                                    <span class="text-xs font-medium opacity-60 italic text-indigo-200">mg</span>
+                            <div class="mt-8 pt-6 border-t border-white/10 text-right">
+                                <p class="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-1" id="totalLabel">Total Human Dose</p>
+                                <div class="flex items-baseline justify-end gap-2">
+                                    <span id="resTotal" class="text-4xl font-black font-mono">48.65</span>
+                                    <span class="text-sm font-bold opacity-70 italic">mg</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <footer class="pt-10 flex flex-col md:flex-row items-center justify-between border-t border-slate-100 gap-6">
-                    <div class="flex items-center gap-2">
-                        <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white">
+                <footer class="pt-8 flex flex-col md:flex-row items-center justify-between border-t border-slate-100 gap-8">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-lg">
                             <i data-lucide="building-2" class="w-6 h-6"></i>
                         </div>
-                        <div class="text-left leading-tight">
-                            <div class="font-black text-slate-800 text-xl tracking-tighter uppercase italic">Daewoong</div>
-                            <div class="text-[10px] font-bold text-slate-400 tracking-widest uppercase">Pharmaceuticals</div>
+                        <div class="text-left leading-none">
+                            <div class="font-black text-slate-900 text-2xl tracking-tighter uppercase italic">Daewoong</div>
+                            <div class="text-[10px] font-black text-slate-400 tracking-[0.3em] uppercase mt-1">Pharmaceuticals</div>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <div class="text-xs font-black text-slate-800 uppercase tracking-widest mb-1">Developer</div>
-                        <div class="flex items-center gap-3 justify-end">
-                            <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Taeheon Kim, PhD</span>
-                            <span class="text-[10px] font-black text-slate-300 uppercase italic">PK/PD Expert</span>
+                    <div class="text-center md:text-right">
+                        <div class="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] mb-2 font-mono italic underline decoration-indigo-500 decoration-2">Verified by PK/PD Lab</div>
+                        <div class="flex flex-col items-center md:items-end leading-tight">
+                            <span class="text-lg font-black text-slate-800 tracking-tight">Taeheon Kim, PhD</span>
+                            <span class="text-[10px] font-bold text-indigo-500 uppercase mt-1">Principal Developer</span>
                         </div>
                     </div>
                 </footer>
@@ -137,52 +167,147 @@
     <script>
         lucide.createIcons();
         
-        let kmChart;
+        let bsaChart, kmChart;
         let currentMode = 'HED';
         const HUMAN_KM = 37;
 
-        // 그래프용 데이터 (W vs Km)
-        const speciesData = [
-            { name: 'Mouse', x: 0.02, y: 3 },
-            { name: 'Hamster', x: 0.05, y: 5 },
-            { name: 'Rat', x: 0.15, y: 6 },
-            { name: 'Guinea pig', x: 0.5, y: 8 },
-            { name: 'Rabbit', x: 1.8, y: 12 },
-            { name: 'Monkey', x: 3, y: 12 },
-            { name: 'Dog', x: 10, y: 20 },
-            { name: 'Human', x: 60, y: 37 }
+        // BSA 산출 함수 (Meeh's formula 근사치: 0.1 * W^0.67)
+        const calculateBSA = (w) => 0.1 * Math.pow(w, 0.666);
+        // Km 산출 함수 (Km = W / BSA)
+        const calculateKm = (w) => w / calculateBSA(w);
+
+        // 그래프 데이터 생성 (0.01kg ~ 100kg)
+        const generateChartPoints = (yCalcFunc) => {
+            let pts = [];
+            // Logarithmic scale for body weight generation
+            for(let w = 0.01; w <= 100; w = w * 1.2) { // 0.01에서 100까지 Logarithmic하게 포인트 생성
+                pts.push({ x: w, y: yCalcFunc(w) });
+            }
+            if (pts[pts.length-1].x < 100) pts.push({ x: 100, y: yCalcFunc(100) }); // 100kg 지점 확실히 포함
+            return pts;
+        };
+
+        // 드롭다운에 사용되는 종별 정보
+        const speciesKmData = [
+            { name: 'Mouse', km: 3, w: 0.02, color: '#e2e8f0', highColor: '#4f46e5' },
+            { name: 'Hamster', km: 5, w: 0.05, color: '#e2e8f0', highColor: '#4f46e5' },
+            { name: 'Guinea pig', km: 8, w: 0.5, color: '#e2e8f0', highColor: '#4f46e5' },
+            { name: 'Rat', km: 6, w: 0.15, color: '#e2e8f0', highColor: '#4f46e5' },
+            { name: 'Rabbit', km: 12, w: 1.8, color: '#e2e8f0', highColor: '#4f46e5' },
+            { name: 'Monkey', km: 12, w: 3, color: '#e2e8f0', highColor: '#4f46e5' },
+            { name: 'Mini-pig', km: 15, w: 10, color: '#e2e8f0', highColor: '#4f46e5' },
+            { name: 'Dog', km: 20, w: 10, color: '#e2e8f0', highColor: '#4f46e5' },
+            { name: 'Swine', km: 35, w: 40, color: '#e2e8f0', highColor: '#4f46e5' },
+            { name: 'Human', km: 37, w: 60, color: '#e2e8f0', highColor: '#4f46e5' }
         ];
 
-        // 차트 초기화 함수
-        function initChart() {
-            const ctx = document.getElementById('kmChart').getContext('2d');
-            kmChart = new Chart(ctx, {
-                type: 'scatter',
+        function initCharts() {
+            // BSA Chart
+            const bsaCtx = document.getElementById('bsaChart').getContext('2d');
+            bsaChart = new Chart(bsaCtx, {
+                type: 'line',
                 data: {
                     datasets: [{
-                        label: 'Species Km Factors',
-                        data: speciesData,
-                        backgroundColor: '#e2e8f0',
-                        pointRadius: 6,
-                        pointHoverRadius: 10,
-                        borderWidth: 0,
-                        showLine: true,
-                        borderColor: '#f1f5f9',
+                        label: 'BSA Curve',
+                        data: generateChartPoints(calculateBSA),
+                        borderColor: '#4f46e5',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        fill: true,
+                        backgroundColor: 'rgba(79, 70, 229, 0.05)',
                         tension: 0.4
+                    }, {
+                        label: 'Species Points',
+                        data: speciesKmData.map(s => ({ x: s.w, y: calculateBSA(s.w), name: s.name })),
+                        type: 'scatter',
+                        pointBackgroundColor: speciesKmData.map(s => s.color),
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBorderColor: 'white',
+                        pointBorderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { type: 'logarithmic', title: { display: true, text: 'Weight (kg, Log Scale)', font: { size: 10, weight: 'bold' } }, grid: { display: false } },
-                        y: { title: { display: true, text: 'Km Factor', font: { size: 10, weight: 'bold' } }, grid: { color: '#f1f5f9' } }
+                        x: { 
+                            type: 'logarithmic',
+                            min: 0.01,
+                            max: 100,
+                            title: { display: true, text: 'Body Weight (kg)', font: { size: 10, weight: 'bold' } },
+                            grid: { display: false }
+                        },
+                        y: { 
+                            title: { display: true, text: 'BSA (m²)', font: { size: 10, weight: 'bold' } },
+                            grid: { color: '#f1f5f9' }
+                        }
                     },
-                    plugins: { 
+                    plugins: {
                         legend: { display: false },
                         tooltip: {
+                            backgroundColor: '#1e293b',
+                            padding: 12,
+                            titleFont: { size: 12, weight: '800' },
+                            bodyFont: { size: 11 },
                             callbacks: {
-                                label: (ctx) => `${ctx.raw.name}: Km ${ctx.raw.y}`
+                                label: (ctx) => ctx.raw.name ? `${ctx.raw.name}: ${ctx.raw.y.toFixed(3)} m²` : `Weight: ${ctx.raw.x.toFixed(2)} kg`
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Km Chart
+            const kmCtx = document.getElementById('kmChart').getContext('2d');
+            kmChart = new Chart(kmCtx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Km Curve',
+                        data: generateChartPoints(calculateKm),
+                        borderColor: '#10b981',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        fill: true,
+                        backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                        tension: 0.4
+                    }, {
+                        label: 'Species Points',
+                        data: speciesKmData.map(s => ({ x: s.w, y: s.km, name: s.name })),
+                        type: 'scatter',
+                        pointBackgroundColor: speciesKmData.map(s => s.color),
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBorderColor: 'white',
+                        pointBorderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { 
+                            type: 'logarithmic',
+                            min: 0.01,
+                            max: 100,
+                            title: { display: true, text: 'Body Weight (kg)', font: { size: 10, weight: 'bold' } },
+                            grid: { display: false }
+                        },
+                        y: { 
+                            title: { display: true, text: 'Km Factor', font: { size: 10, weight: 'bold' } },
+                            grid: { color: '#f1f5f9' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            padding: 12,
+                            titleFont: { size: 12, weight: '800' },
+                            bodyFont: { size: 11 },
+                            callbacks: {
+                                label: (ctx) => ctx.raw.name ? `${ctx.raw.name}: Km ${ctx.raw.y}` : `Weight: ${ctx.raw.x.toFixed(2)} kg`
                             }
                         }
                     }
@@ -192,22 +317,41 @@
 
         function setMode(mode) {
             currentMode = mode;
-            document.getElementById('modeHED').className = mode === 'HED' ? 'flex-1 py-2 px-4 rounded-xl text-xs font-bold bg-white shadow-sm text-indigo-600' : 'flex-1 py-2 px-4 rounded-xl text-xs font-bold text-slate-400';
-            document.getElementById('modeAED').className = mode === 'AED' ? 'flex-1 py-2 px-4 rounded-xl text-xs font-bold bg-white shadow-sm text-indigo-600' : 'flex-1 py-2 px-4 rounded-xl text-xs font-bold text-slate-400';
-            document.getElementById('resLabel').innerText = mode === 'HED' ? 'HED Result' : 'AED Result';
+            document.getElementById('modeHED').className = mode === 'HED' ? 'flex-1 py-3 rounded-xl text-xs font-black transition-all bg-white shadow-sm text-indigo-600 border border-slate-100' : 'flex-1 py-3 rounded-xl text-xs font-black transition-all text-slate-400';
+            document.getElementById('modeAED').className = mode === 'AED' ? 'flex-1 py-3 rounded-xl text-xs font-black transition-all bg-white shadow-sm text-indigo-600 border border-slate-100' : 'flex-1 py-3 rounded-xl text-xs font-black transition-all text-slate-400';
+            
+            document.getElementById('resTitle').innerText = mode === 'HED' ? 'Human Equivalent Dose' : 'Animal Equivalent Dose';
+            document.getElementById('totalLabel').innerText = mode === 'HED' ? 'Total Human Dose' : 'Total Animal Dose';
+            document.getElementById('weightLabel').innerText = mode === 'HED' ? 'Animal Weight (kg)' : 'Human Weight (kg)';
+            
             calculate();
         }
 
         function updateView() {
             const select = document.getElementById('animalType');
             const selectedName = select.options[select.selectedIndex].getAttribute('data-name');
-            
-            // 그래프 하이라이트 업데이트
-            const bgColors = speciesData.map(s => s.name === selectedName ? '#4f46e5' : '#e2e8f0');
-            const pointSizes = speciesData.map(s => s.name === selectedName ? 10 : 6);
-            
-            kmChart.data.datasets[0].pointBackgroundColor = bgColors;
-            kmChart.data.datasets[0].pointRadius = pointSizes;
+            const selectedKm = parseFloat(select.value);
+
+            // Calculate standard human weight for HED/AED
+            const humanWeight = 60; 
+
+            // Update animalWeight input field based on selected species (for convenience)
+            const selectedSpecies = speciesKmData.find(s => s.name === selectedName);
+            if (selectedSpecies) {
+                document.getElementById('animalWeight').value = selectedSpecies.w;
+            }
+
+
+            // Highlight on BSA Chart
+            bsaChart.data.datasets[1].pointBackgroundColor = speciesKmData.map(s => s.name === selectedName ? s.highColor : s.color);
+            bsaChart.data.datasets[1].pointRadius = speciesKmData.map(s => s.name === selectedName ? 10 : 6);
+            bsaChart.data.datasets[1].pointBorderWidth = speciesKmData.map(s => s.name === selectedName ? 2 : 1);
+            bsaChart.update();
+
+            // Highlight on Km Chart
+            kmChart.data.datasets[1].pointBackgroundColor = speciesKmData.map(s => s.name === selectedName ? s.highColor : s.color);
+            kmChart.data.datasets[1].pointRadius = speciesKmData.map(s => s.name === selectedName ? 10 : 6);
+            kmChart.data.datasets[1].pointBorderWidth = speciesKmData.map(s => s.name === selectedName ? 2 : 1);
             kmChart.update();
             
             calculate();
@@ -215,21 +359,29 @@
 
         function calculate() {
             const animalKm = parseFloat(document.getElementById('animalType').value);
-            const animalW = parseFloat(document.getElementById('animalWeight').value) || 0;
+            const inputW = parseFloat(document.getElementById('animalWeight').value) || 0.001; // Ensure not zero
             const inputDose = parseFloat(document.getElementById('doseInput').value) || 0;
-            const inputUnit = document.getElementById('unitInput').value;
-            const humanW = 60; // 고정 표준
+            const unit = document.getElementById('unitInput').value;
+            
+            const humanW = 60; // Standard human weight for total dose calculation
+            
+            let mgKgBase = (unit === 'mghead') ? (inputDose / inputW) : inputDose;
+            let resultMgKg, resultTotal;
 
-            let mgKgBase = (inputUnit === 'mghead') ? (inputDose / (currentMode === 'HED' ? animalW : humanW)) : inputDose;
-            let resultMgKg = (currentMode === 'HED') ? mgKgBase * (animalKm / HUMAN_KM) : mgKgBase * (HUMAN_KM / animalKm);
-            let resultTotal = (currentMode === 'HED') ? resultMgKg * humanW : resultMgKg * animalW;
+            if (currentMode === 'HED') { // Animal -> Human
+                resultMgKg = mgKgBase * (animalKm / HUMAN_KM);
+                resultTotal = resultMgKg * humanW;
+            } else { // Human -> Animal
+                resultMgKg = mgKgBase * (HUMAN_KM / animalKm);
+                resultTotal = resultMgKg * inputW; // Target animal's weight
+            }
 
             document.getElementById('resConc').innerText = resultMgKg.toFixed(3);
             document.getElementById('resTotal').innerText = resultTotal.toLocaleString(undefined, {maximumFractionDigits: 2});
         }
 
-        initChart();
-        updateView(); // 초기 실행 시 하이라이트 반영
+        initCharts(); // 두 차트 모두 초기화
+        updateView(); // 초기 실행 시 하이라이트 및 계산 반영
     </script>
 </body>
 </html>
