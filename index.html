@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dose Calc Pro | HED & AED Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-3xl mx-auto">
+        <header class="mb-8 text-center">
+            <div class="inline-block p-3 bg-blue-600 rounded-2xl mb-4 text-white">
+                <i data-lucide="microscope" class="w-8 h-8"></i>
+            </div>
+            <h1 class="text-3xl font-bold tracking-tight">Dose Calc Pro</h1>
+            <p class="text-slate-500 mt-2">Km factor 기반 체표면적 변환 계산기</p>
+        </header>
+
+        <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 overflow-hidden border border-slate-100">
+            <div class="p-6 md:p-8">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-2 font-semibold text-blue-600">
+                            <i data-lucide="beaker" class="w-5 h-5"></i>
+                            <span>기본 정보 입력</span>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-2">동물 종 선택 (Source)</label>
+                            <select id="animalType" class="w-full p-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                                <option value="3" selected>Mouse (Km = 3)</option>
+                                <option value="6">Rat (Km = 6)</option>
+                                <option value="12">Hamster (Km = 12)</option>
+                                <option value="20">Dog (Km = 20)</option>
+                                <option value="12">Monkey (Km = 12)</option>
+                                <option value="37">Human (Km = 37)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-2">투여 용량 (mg/kg)</label>
+                            <input type="number" id="doseInput" value="10" class="w-full p-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all outline-none" placeholder="용량을 입력하세요">
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 rounded-2xl p-6 flex flex-col justify-center items-center text-center space-y-4 border border-blue-100">
+                        <div class="text-blue-600 font-semibold flex items-center gap-2">
+                            <i data-lucide="user-check" class="w-5 h-5"></i>
+                            <span>Human Equivalent Dose (HED)</span>
+                        </div>
+                        <div class="text-5xl font-bold text-blue-700" id="resultValue">0.81</div>
+                        <div class="text-blue-400 text-sm font-medium">mg/kg</div>
+                        
+                        <div class="w-full pt-4 mt-4 border-t border-blue-200/50">
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                공식: HED = Animal Dose × (Animal Km / Human Km)<br>
+                                *Human Km 기준값은 37을 사용합니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 bg-white/60 rounded-xl border border-dashed border-slate-300">
+                <h3 class="text-sm font-semibold mb-2 flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4 text-slate-400"></i> Km Factor란?
+                </h3>
+                <p class="text-xs text-slate-500">체중 대비 체표면적(BSA)의 비율을 나타내는 계수로, 종간 약물 용량 환산 시 핵심 지표로 사용됩니다.</p>
+            </div>
+            <div class="p-4 bg-white/60 rounded-xl border border-dashed border-slate-300 text-xs text-slate-500 leading-normal">
+                본 계산기는 FDA 가이드를 기준으로 제작되었습니다. 실험실 환경 및 개별 개체 특성에 따라 실제 환산치는 달라질 수 있습니다.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lucide 아이콘 초기화
+        lucide.createIcons();
+
+        const animalType = document.getElementById('animalType');
+        const doseInput = document.getElementById('doseInput');
+        const resultValue = document.getElementById('resultValue');
+        const HUMAN_KM = 37;
+
+        function calculateHED() {
+            const animalKm = parseFloat(animalType.value);
+            const dose = parseFloat(doseInput.value) || 0;
+            
+            // HED Formula: Animal Dose * (Animal Km / Human Km)
+            const hed = dose * (animalKm / HUMAN_KM);
+            
+            resultValue.innerText = hed.toFixed(2);
+        }
+
+        animalType.addEventListener('change', calculateHED);
+        doseInput.addEventListener('input', calculateHED);
+
+        // 초기 실행
+        calculateHED();
+    </script>
+</body>
+</html>
