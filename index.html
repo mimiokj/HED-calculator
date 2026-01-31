@@ -10,8 +10,9 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        .chart-container { position: relative; height: 280px; width: 100%; }
+        .chart-container { position: relative; height: 260px; width: 100%; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .input-focus-ring:focus { border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1); }
     </style>
 </head>
 <body class="text-slate-900 min-h-screen p-4 md:p-6">
@@ -20,89 +21,79 @@
         <header class="mb-6 flex items-center justify-between bg-white p-6 rounded-[2rem] shadow-sm border border-slate-200">
             <div class="flex items-center gap-4">
                 <div class="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg">
-                    <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+                    <i data-lucide="flask-conical" class="w-6 h-6"></i>
                 </div>
                 <div>
                     <h1 class="text-2xl font-black tracking-tighter text-slate-800 italic uppercase leading-none">DOSE CALC <span class="text-indigo-600">VISUAL PRO</span></h1>
-                    <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase mt-1">PK/PD Comparative Scaling Dashboard</p>
+                    <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase mt-1">PK/PD Species Scaling Tool</p>
                 </div>
             </div>
-            <div class="hidden md:block text-right">
-                <span class="text-xs font-black text-slate-400 uppercase tracking-widest block">Principal Developer</span>
-                <span class="text-sm font-black text-indigo-600">Taeheon Kim, PhD</span>
+            <div class="text-right">
+                <span class="text-xs font-black text-slate-400 uppercase tracking-widest block">Verified Expert</span>
+                <span class="text-sm font-black text-indigo-600 underline decoration-indigo-200 decoration-2 underline-offset-4">Taeheon Kim, PhD</span>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-200 flex flex-col">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2">
-                        <div class="w-2 h-6 bg-indigo-500 rounded-full"></div>
-                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-tight">Body Surface Area (BSA)</h3>
-                    </div>
-                    <span class="text-[9px] font-mono text-slate-400 italic">Formula: 0.1 × W^0.67</span>
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-200">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-1.5 h-4 bg-indigo-500 rounded-full"></div>
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-tight">Body Surface Area (BSA)</h3>
                 </div>
-                <div class="chart-container">
-                    <canvas id="bsaChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="bsaChart"></canvas></div>
             </div>
-
-            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-200 flex flex-col">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2">
-                        <div class="w-2 h-6 bg-emerald-500 rounded-full"></div>
-                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-tight">Km Factor Relationship</h3>
-                    </div>
-                    <span class="text-[9px] font-mono text-slate-400 italic">Formula: Weight / BSA</span>
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-200">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-1.5 h-4 bg-emerald-500 rounded-full"></div>
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-tight">Km Factor Map</h3>
                 </div>
-                <div class="chart-container">
-                    <canvas id="kmChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="kmChart"></canvas></div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div class="lg:col-span-5 space-y-4">
-                <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-200 h-full">
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black text-indigo-500 uppercase tracking-widest block">Direction</label>
-                            <div class="flex p-1 bg-slate-100 rounded-xl border border-slate-200">
+            <div class="lg:col-span-5">
+                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 h-full">
+                    <div class="grid grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <label class="text-[10px] font-black text-indigo-500 uppercase tracking-widest block mb-2">Direction</label>
+                            <div class="flex p-1 bg-slate-100 rounded-xl">
                                 <button id="modeHED" onclick="setMode('HED')" class="flex-1 py-2 rounded-lg text-[10px] font-black transition-all bg-white shadow-sm text-indigo-600">ANIMAL → HUMAN</button>
                                 <button id="modeAED" onclick="setMode('AED')" class="flex-1 py-2 rounded-lg text-[10px] font-black transition-all text-slate-400">HUMAN → ANIMAL</button>
                             </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black text-indigo-500 uppercase tracking-widest block">Species Reference</label>
-                            <select id="animalType" onchange="updateView()" class="w-full p-2 bg-transparent border-b-2 border-slate-100 outline-none focus:border-indigo-500 font-bold text-xs">
+                        <div>
+                            <label class="text-[10px] font-black text-indigo-500 uppercase tracking-widest block mb-2">Species Type (Km)</label>
+                            <select id="animalType" onchange="onSpeciesChange()" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-xs focus:border-indigo-500">
                                 <optgroup label="Rodents">
                                     <option value="3" data-name="Mouse" data-weight="0.02">Mouse (Km 3)</option>
+                                    <option value="6" data-name="Rat" data-weight="0.15">Rat (Km 6)</option>
                                     <option value="5" data-name="Hamster" data-weight="0.05">Hamster (Km 5)</option>
                                     <option value="8" data-name="Guinea pig" data-weight="0.5">Guinea pig (Km 8)</option>
-                                    <option value="6" data-name="Rat" data-weight="0.15">Rat (Km 6)</option>
                                 </optgroup>
                                 <optgroup label="Non-Rodents">
                                     <option value="12" data-name="Rabbit" data-weight="1.8">Rabbit (Km 12)</option>
                                     <option value="12" data-name="Monkey" data-weight="3">Monkey (Km 12)</option>
-                                    <option value="15" data-name="Mini-pig" data-weight="10">Mini-pig (Km 15)</option>
                                     <option value="20" data-name="Dog" data-weight="10">Dog (Km 20)</option>
                                     <option value="35" data-name="Swine" data-weight="40">Swine (Km 35)</option>
                                 </optgroup>
-                                <option value="37" data-name="Human" data-weight="60">Human (Km 37)</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-6">
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block" id="weightLabel">Animal Weight (kg)</label>
-                            <input type="number" id="animalWeight" oninput="calculate()" value="0.02" step="0.001" class="w-full py-1 text-2xl font-black border-b border-slate-100 outline-none focus:border-indigo-500 transition-all bg-transparent font-mono">
+                    <div class="space-y-6">
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-300">
+                            <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest block mb-2" id="weightLabel">Target Animal Weight (kg)</label>
+                            <div class="flex items-center gap-3">
+                                <input type="number" id="animalWeight" oninput="calculate()" value="0.25" step="0.01" class="w-full bg-transparent text-3xl font-black outline-none font-mono text-slate-800">
+                                <span class="text-xs font-bold text-slate-400 italic">Editable</span>
+                            </div>
                         </div>
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Input Dose</label>
-                            <div class="flex items-center gap-2">
-                                <input type="number" id="doseInput" oninput="calculate()" value="10" class="w-full py-1 text-2xl font-black border-b border-slate-100 outline-none focus:border-indigo-500 transition-all bg-transparent font-mono text-indigo-600">
-                                <select id="unitInput" onchange="calculate()" class="bg-slate-800 text-white text-[9px] font-black px-2 py-1.5 rounded-lg">
+                        <div class="p-4">
+                            <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest block mb-2">Dose Amount</label>
+                            <div class="flex items-center gap-4">
+                                <input type="number" id="doseInput" oninput="calculate()" value="10" class="w-full text-3xl font-black border-b-2 border-slate-100 outline-none focus:border-indigo-500 transition-all bg-transparent font-mono">
+                                <select id="unitInput" onchange="calculate()" class="bg-slate-800 text-white text-[10px] font-black px-4 py-2 rounded-xl">
                                     <option value="mgkg">MG/KG</option>
                                     <option value="mghead">MG/HEAD</option>
                                 </select>
@@ -113,42 +104,36 @@
             </div>
 
             <div class="lg:col-span-7">
-                <div class="bg-indigo-600 rounded-[2.5rem] p-8 text-white h-full flex flex-col justify-center shadow-xl shadow-indigo-200 relative overflow-hidden">
-                    <div class="absolute right-0 top-0 p-8 opacity-10">
-                        <i data-lucide="zap" class="w-24 h-24"></i>
+                <div class="bg-indigo-600 rounded-[2.5rem] p-10 text-white h-full flex flex-col justify-center shadow-xl shadow-indigo-100 relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-10">
+                        <i data-lucide="activity" class="w-64 h-64"></i>
                     </div>
-                    <div class="grid grid-cols-2 gap-10 relative z-10">
-                        <div class="border-r border-white/10 pr-6">
-                            <p class="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-1" id="resTitle">Human Equivalent Dose</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
+                        <div class="space-y-2">
+                            <p class="text-xs font-black text-indigo-200 uppercase tracking-[0.2em]" id="resTitle">Human Equivalent Dose</p>
                             <div class="flex items-baseline gap-2">
-                                <span id="resConc" class="text-6xl font-black font-mono tracking-tighter">0.811</span>
-                                <span class="text-sm font-bold opacity-60 italic">mg/kg</span>
+                                <span id="resConc" class="text-7xl font-black font-mono tracking-tighter">0.811</span>
+                                <span class="text-lg font-bold opacity-60 italic">mg/kg</span>
                             </div>
                         </div>
-                        <div class="pl-4">
-                            <p class="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-1" id="totalLabel">Total Human Dose</p>
+                        <div class="space-y-2 md:border-l md:border-white/10 md:pl-10">
+                            <p class="text-xs font-black text-indigo-200 uppercase tracking-[0.2em]" id="totalLabel">Total Human Dose</p>
                             <div class="flex items-baseline gap-2">
-                                <span id="resTotal" class="text-5xl font-black font-mono tracking-tighter">48.65</span>
-                                <span class="text-sm font-bold opacity-60 italic">mg</span>
+                                <span id="resTotal" class="text-6xl font-black font-mono tracking-tighter text-indigo-100">48.65</span>
+                                <span class="text-lg font-bold opacity-60 italic">mg</span>
                             </div>
                         </div>
+                    </div>
+                    <div class="mt-10 pt-6 border-t border-white/10 flex items-center gap-4 relative z-10">
+                        <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                        <p class="text-[10px] font-bold text-indigo-100 tracking-wider uppercase italic">Real-time Calculation based on BSA-Normalization</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <footer class="mt-8 pt-6 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4 px-4">
-            <div class="flex items-center gap-3">
-                <i data-lucide="building-2" class="w-5 h-5 text-slate-400"></i>
-                <span class="text-lg font-black text-slate-800 tracking-tighter uppercase italic">Daewoong <span class="text-indigo-600 not-italic">Pharm</span></span>
-            </div>
-            <div class="flex items-center gap-6">
-                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">professional research tool ver. 2026</div>
-                <div class="h-4 w-[1px] bg-slate-300"></div>
-                <div class="text-[11px] font-black text-indigo-600 bg-white px-4 py-1.5 rounded-full border border-slate-200 shadow-sm">
-                    Verified by PK/PD Laboratory
-                </div>
-            </div>
+        <footer class="mt-8 text-center text-[10px] font-bold text-slate-400 tracking-[0.3em] uppercase">
+            © 2026 DAEWOONG PHARMACEUTICALS - PK/PD SIMULATION ENGINE
         </footer>
     </div>
 
@@ -158,59 +143,52 @@
         let currentMode = 'HED';
         const HUMAN_KM = 37;
 
+        const speciesRef = [
+            { name: 'Mouse', km: 3, w: 0.02 },
+            { name: 'Rat', km: 6, w: 0.15 },
+            { name: 'Hamster', km: 5, w: 0.05 },
+            { name: 'Guinea pig', km: 8, w: 0.5 },
+            { name: 'Rabbit', km: 12, w: 1.8 },
+            { name: 'Monkey', km: 12, w: 3 },
+            { name: 'Dog', km: 20, w: 10 },
+            { name: 'Swine', km: 35, w: 40 },
+            { name: 'Human', km: 37, w: 60 }
+        ];
+
         const calculateBSA = (w) => 0.1 * Math.pow(w, 0.666);
         const calculateKm = (w) => w / calculateBSA(w);
 
-        const speciesKmData = [
-            { name: 'Mouse', km: 3, w: 0.02, color: '#e2e8f0', highColor: '#4f46e5' },
-            { name: 'Hamster', km: 5, w: 0.05, color: '#e2e8f0', highColor: '#4f46e5' },
-            { name: 'Guinea pig', km: 8, w: 0.5, color: '#e2e8f0', highColor: '#4f46e5' },
-            { name: 'Rat', km: 6, w: 0.15, color: '#e2e8f0', highColor: '#4f46e5' },
-            { name: 'Rabbit', km: 12, w: 1.8, color: '#e2e8f0', highColor: '#4f46e5' },
-            { name: 'Monkey', km: 12, w: 3, color: '#e2e8f0', highColor: '#4f46e5' },
-            { name: 'Mini-pig', km: 15, w: 10, color: '#e2e8f0', highColor: '#4f46e5' },
-            { name: 'Dog', km: 20, w: 10, color: '#e2e8f0', highColor: '#4f46e5' },
-            { name: 'Swine', km: 35, w: 40, color: '#e2e8f0', highColor: '#4f46e5' },
-            { name: 'Human', km: 37, w: 60, color: '#e2e8f0', highColor: '#4f46e5' }
-        ];
-
-        function generateData(yFunc) {
-            let pts = [];
-            for(let w = 0.01; w <= 100; w *= 1.3) pts.push({ x: w, y: yFunc(w) });
-            pts.push({ x: 100, y: yFunc(100) });
-            return pts;
-        }
-
         function initCharts() {
-            const commonOptions = {
-                responsive: true, maintainAspectRatio: false,
-                scales: {
-                    x: { type: 'logarithmic', min: 0.01, max: 100, grid: { display: false }, ticks: { font: { size: 9 } } },
-                    y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } }
-                },
-                plugins: { legend: { display: false } }
+            const commonScales = {
+                x: { type: 'logarithmic', min: 0.01, max: 100, grid: { display: false }, ticks: { font: { size: 9 } } },
+                y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } }
             };
+
+            const lineData = Array.from({length: 50}, (_, i) => {
+                const w = 0.01 * Math.pow(100/0.01, i/49);
+                return { x: w, y_bsa: calculateBSA(w), y_km: calculateKm(w) };
+            });
 
             bsaChart = new Chart(document.getElementById('bsaChart'), {
                 type: 'line',
                 data: {
                     datasets: [
-                        { data: generateData(calculateBSA), borderColor: '#4f46e5', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: 'rgba(79, 70, 229, 0.05)', tension: 0.4 },
-                        { data: speciesKmData.map(s => ({ x: s.w, y: calculateBSA(s.w), name: s.name })), type: 'scatter', pointBackgroundColor: '#cbd5e1', pointRadius: 4 }
+                        { data: lineData.map(d => ({x: d.x, y: d.y_bsa})), borderColor: '#4f46e5', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: 'rgba(79, 70, 229, 0.05)', tension: 0.4 },
+                        { data: speciesRef.map(s => ({x: s.w, y: calculateBSA(s.w), name: s.name})), type: 'scatter', pointBackgroundColor: '#cbd5e1', pointRadius: 5 }
                     ]
                 },
-                options: commonOptions
+                options: { responsive: true, maintainAspectRatio: false, scales: commonScales, plugins: { legend: { display: false } } }
             });
 
             kmChart = new Chart(document.getElementById('kmChart'), {
                 type: 'line',
                 data: {
                     datasets: [
-                        { data: generateData(calculateKm), borderColor: '#10b981', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: 'rgba(16, 185, 129, 0.05)', tension: 0.4 },
-                        { data: speciesKmData.map(s => ({ x: s.w, y: s.km, name: s.name })), type: 'scatter', pointBackgroundColor: '#cbd5e1', pointRadius: 4 }
+                        { data: lineData.map(d => ({x: d.x, y: d.y_km})), borderColor: '#10b981', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: 'rgba(16, 185, 129, 0.05)', tension: 0.4 },
+                        { data: speciesRef.map(s => ({x: s.w, y: s.km, name: s.name})), type: 'scatter', pointBackgroundColor: '#cbd5e1', pointRadius: 5 }
                     ]
                 },
-                options: commonOptions
+                options: { responsive: true, maintainAspectRatio: false, scales: commonScales, plugins: { legend: { display: false } } }
             });
         }
 
@@ -220,33 +198,40 @@
             document.getElementById('modeAED').className = mode === 'AED' ? 'flex-1 py-2 rounded-lg text-[10px] font-black bg-white shadow-sm text-indigo-600' : 'flex-1 py-2 rounded-lg text-[10px] font-black text-slate-400';
             document.getElementById('resTitle').innerText = mode === 'HED' ? 'Human Equivalent Dose' : 'Animal Equivalent Dose';
             document.getElementById('totalLabel').innerText = mode === 'HED' ? 'Total Human Dose' : 'Total Animal Dose';
-            document.getElementById('weightLabel').innerText = mode === 'HED' ? 'Animal Weight (kg)' : 'Human Weight (kg)';
+            document.getElementById('weightLabel').innerText = mode === 'HED' ? 'Experimental Animal Weight (kg)' : 'Patient Body Weight (kg)';
             calculate();
         }
 
-        function updateView() {
+        function onSpeciesChange() {
             const select = document.getElementById('animalType');
+            const selectedW = select.options[select.selectedIndex].getAttribute('data-weight');
             const selectedName = select.options[select.selectedIndex].getAttribute('data-name');
-            const selectedSpecies = speciesKmData.find(s => s.name === selectedName);
-            if (selectedSpecies) document.getElementById('animalWeight').value = selectedSpecies.w;
+            
+            // 드롭다운 선택 시 박사님이 원하는 기본 체중으로 먼저 세팅해주되, 수정 가능하게 유지
+            document.getElementById('animalWeight').value = selectedW;
+            
+            updateHighlight(selectedName);
+            calculate();
+        }
 
+        function updateHighlight(name) {
             [bsaChart, kmChart].forEach(chart => {
-                chart.data.datasets[1].pointBackgroundColor = speciesKmData.map(s => s.name === selectedName ? '#4f46e5' : '#cbd5e1');
-                chart.data.datasets[1].pointRadius = speciesKmData.map(s => s.name === selectedName ? 8 : 4);
+                chart.data.datasets[1].pointBackgroundColor = speciesRef.map(s => s.name === name ? '#4f46e5' : '#cbd5e1');
+                chart.data.datasets[1].pointRadius = speciesRef.map(s => s.name === name ? 10 : 5);
                 chart.update();
             });
-            calculate();
         }
 
         function calculate() {
             const animalKm = parseFloat(document.getElementById('animalType').value);
             const inputW = parseFloat(document.getElementById('animalWeight').value) || 0.001;
-            const inputDose = parseFloat(document.getElementById('doseInput').value) || 0;
+            const dose = parseFloat(document.getElementById('doseInput').value) || 0;
             const unit = document.getElementById('unitInput').value;
             const humanW = 60;
             
-            let base = (unit === 'mghead') ? (inputDose / inputW) : inputDose;
+            let base = (unit === 'mghead') ? (dose / inputW) : dose;
             let resC, resT;
+
             if (currentMode === 'HED') {
                 resC = base * (animalKm / HUMAN_KM);
                 resT = resC * humanW;
@@ -259,7 +244,7 @@
         }
 
         initCharts();
-        updateView();
+        onSpeciesChange();
     </script>
 </body>
 </html>
